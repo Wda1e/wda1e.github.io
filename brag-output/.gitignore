@@ -3,3 +3,4 @@ composition/.hyperframes/
 work-render.log
 *.tmp
 .*.hf-transaction-*/
+work-*/
