@@ -3,3 +3,4 @@ frames/
 tests/
 *.tmp
 *.log
+__pycache__/
