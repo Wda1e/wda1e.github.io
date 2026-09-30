@@ -93,6 +93,7 @@ Everything is synthesized, so there is no licensing to worry about. The music is
 ## Step 10: Mix and delivery checks
 
 - The score is written to the same beat grid as the picture, so every hit is frame-aligned (at 30 fps, a beat is 18 frames).
-- Loudness is restrained: about -16 dBFS RMS in the groove, peaks at or below -1 dBFS, with gentle soft-clipping only.
+- Loudness is restrained: about -16 dBFS RMS in the groove, gentle soft-clipping only. The delivered file measures -14.4 LUFS integrated, 3.3 LU loudness range and a -1.4 dBFS peak.
 - The only fade is a 0.15 s tail fade.
-- Target checks: 16:9, 15.0 s, English copy, a stable closing frame with the product and copy.
+- Target checks, run on the encoded file: 1920×1080 16:9, 15.00 s, 450 frames at 30 fps, English copy, a stable closing frame with the product and copy.
+- Continuity: a frame-difference scan of the decoded MP4 shows jumps only at the three planned cuts (6.0, 8.4, 10.8 s) and the 0.35 s fade-up.
