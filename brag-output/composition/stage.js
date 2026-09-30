@@ -10,6 +10,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 
 // The adapter watches THREE.DefaultLoadingManager on window to hold render-ready.
 window.THREE = THREE;
@@ -57,6 +58,20 @@ const composer = new EffectComposer(renderer);
 composer.addPass(new RenderPass(scene, camera));
 composer.addPass(new OutputPass());
 composer.addPass(new SMAAPass(W, H));
+// Static ±1 LSB triangular dither before the 8-bit canvas: breaks up banding in
+// the smooth wall gradients. Hash of the pixel coordinate only, so it is
+// deterministic and identical on every frame.
+composer.addPass(new ShaderPass({
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv;
+    float h(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
+    void main() {
+      vec4 c = texture2D(tDiffuse, vUv);
+      float n = (h(gl_FragCoord.xy) + h(gl_FragCoord.xy + 17.31) - 1.0) / 255.0;
+      gl_FragColor = vec4(c.rgb + n, c.a);
+    }`,
+}));
 
 // ---- room ----------------------------------------------------------------------
 const std = (color, roughness = 0.8, metalness = 0) => new THREE.MeshStandardMaterial({ color, roughness, metalness });
@@ -115,7 +130,7 @@ add(new THREE.CylinderGeometry(0.058, 0.066, 0.02, 40), steel, -0.37, 0.808, 0.1
 add(new THREE.CylinderGeometry(0.006, 0.006, 0.2, 12), steel, -0.37, 0.918, 0.19);
 const shade = add(new THREE.CylinderGeometry(0.085, 0.122, 0.165, 48, 1, true), new THREE.MeshStandardMaterial({ color: '#efe4d1', roughness: 0.9, side: THREE.DoubleSide, emissive: '#ffe9c8', emissiveIntensity: 0.28 }), -0.37, 1.0, 0.19);
 shade.castShadow = false;
-const bulb = new THREE.PointLight('#ffdcae', 0.35, 1.6, 2);
+const bulb = new THREE.PointLight('#ffdcae', 0.25, 1.6, 2);
 bulb.position.set(-0.37, 0.97, 0.19);
 scene.add(bulb);
 add(new THREE.BoxGeometry(0.22, 0.034, 0.155), std('#1b5c8c', 0.7), 0.08, 0.814, 0.2);

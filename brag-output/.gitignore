@@ -4,3 +4,4 @@ work-render.log
 *.tmp
 .*.hf-transaction-*/
 work-*/
+work-check.log
